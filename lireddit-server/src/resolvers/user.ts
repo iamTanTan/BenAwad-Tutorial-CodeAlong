@@ -56,13 +56,13 @@ export class UserResolver {
     async register(
         @Arg("options") options: UsernamePasswordInput,
         @Ctx() { em, req }: MyContext
-    ): Promise<UserResponse> {
+    ) {
         // validate username length
         if (options.username.length <= 5) {
             return {
                 errors: [
                     {
-                        field: "invalid username length",
+                        field: "username",
                         message: "the username entered is too short",
                     },
                 ],
@@ -74,7 +74,7 @@ export class UserResolver {
             return {
                 errors: [
                     {
-                        field: "invalid password length",
+                        field: "password",
                         message: "the password entered is too short",
                     },
                 ],
@@ -125,7 +125,7 @@ export class UserResolver {
                 return {
                     errors: [
                         {
-                            field: "username already exists",
+                            field: "username",
                             message: "that username already exists",
                         },
                     ],

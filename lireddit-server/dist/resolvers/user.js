@@ -83,7 +83,7 @@ let UserResolver = class UserResolver {
                 return {
                     errors: [
                         {
-                            field: "invalid username length",
+                            field: "username",
                             message: "the username entered is too short",
                         },
                     ],
@@ -93,7 +93,7 @@ let UserResolver = class UserResolver {
                 return {
                     errors: [
                         {
-                            field: "invalid password length",
+                            field: "password",
                             message: "the password entered is too short",
                         },
                     ],
@@ -120,7 +120,7 @@ let UserResolver = class UserResolver {
                     return {
                         errors: [
                             {
-                                field: "username already exists",
+                                field: "username",
                                 message: "that username already exists",
                             },
                         ],
