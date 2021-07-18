@@ -1,11 +1,11 @@
 import React from "react";
 import { Formik, Form } from "formik";
 import { Box, Button } from "@chakra-ui/react";
-import { Wrapper } from "./wrapper";
-import { InputField } from "./inputField";
 import { toErrorMap } from "../utils/toErrorMap";
 import { useRouter } from "next/dist/client/router";
 import { useLoginMutation } from "../generated/graphql";
+import { Wrapper } from "../components/Wrapper";
+import { InputField } from "../components/InputField";
 
 interface loginProps {}
 
