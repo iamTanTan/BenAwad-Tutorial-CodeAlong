@@ -4,7 +4,6 @@ import {
     Arg,
     Ctx,
     Field,
-    InputType,
     Mutation,
     ObjectType,
     Query,
@@ -13,15 +12,8 @@ import {
 import argon2 from "argon2";
 import { EntityManager } from "@mikro-orm/postgresql";
 import { COOKIE_NAME } from "../constants";
-
-//Antoher method of performing input rather than with @Arg
-@InputType()
-class UsernamePasswordInput {
-    @Field()
-    username: string;
-    @Field()
-    password: string;
-}
+import { UsernamePasswordInput } from "../utils/UsernamePasswordInput";
+import { validateRegister } from "../utils/validateRegister";
 
 @ObjectType()
 class FieldError {
@@ -39,6 +31,17 @@ class UserResponse {
     @Field(() => User, { nullable: true })
     user?: User;
 }
+
+// @Resolver()
+// export class UserResolver {
+//     @Mutation(() => Boolean)
+//     async forgotPassword(
+//         @Arg('email') email: string
+//         @Ctx() {em} : MyContext
+//     ) {
+//         const user = await em.findOne(User,)
+//     }
+// }
 
 @Resolver()
 export class UserResolver {
@@ -58,45 +61,10 @@ export class UserResolver {
         @Arg("options") options: UsernamePasswordInput,
         @Ctx() { em, req }: MyContext
     ) {
-        // validate username length
-        if (options.username.length <= 5) {
-            return {
-                errors: [
-                    {
-                        field: "username",
-                        message: "the username entered is too short",
-                    },
-                ],
-            };
+        const errors = validateRegister(options);
+        if (errors) {
+            return { errors };
         }
-
-        // validate password length
-        if (options.password.length <= 8) {
-            return {
-                errors: [
-                    {
-                        field: "password",
-                        message: "the password entered is too short",
-                    },
-                ],
-            };
-        }
-
-        //you can validate username by checking if it is already taken
-        // const existingUser = await em.findOne(User, {
-        //     username: options.username,
-        // });
-        // if (existingUser) {
-        //     return {
-        //         errors: [
-        //             {
-        //                 field: "username already exists",
-        //                 message: "that username already exists",
-        //             },
-        //         ],
-        //     };
-        // }
-
         // We do not want to pass in our password here we want to hash our password
         // so that if a breach occurs there is no awful loss of data
         // We will use argon2 to acheive the hashing
@@ -115,6 +83,7 @@ export class UserResolver {
                 .insert({
                     username: options.username,
                     password: hashedPassword,
+                    email: options.email,
                     created_at: new Date(),
                     updated_at: new Date(),
                 })
@@ -143,10 +112,16 @@ export class UserResolver {
 
     @Mutation(() => UserResponse)
     async login(
-        @Arg("options") options: UsernamePasswordInput,
+        @Arg("usernameOrEmail") usernameOrEmail: string,
+        @Arg("password") password: string,
         @Ctx() { em, req }: MyContext
     ) {
-        const user = await em.findOne(User, { username: options.username });
+        const user = await em.findOne(
+            User,
+            usernameOrEmail.includes("@")
+                ? { email: usernameOrEmail }
+                : { username: usernameOrEmail }
+        );
         if (!user) {
             return {
                 errors: [
@@ -158,7 +133,7 @@ export class UserResolver {
             };
         }
 
-        const valid = await argon2.verify(user.password, options.password);
+        const valid = await argon2.verify(user.password, password);
 
         if (!valid) {
             return {

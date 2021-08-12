@@ -25,4 +25,8 @@ export class User {
     //note you can remove Field decorator and then this field will not be exposed in graphql
     @Property({ type: "text" })
     password!: string;
+
+    @Field(() => String)
+    @Property({ type: "text", unique: true })
+    email!: string;
 }

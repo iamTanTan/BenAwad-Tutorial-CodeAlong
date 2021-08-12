@@ -30,6 +30,7 @@ const redisClient = redis_1.default.createClient();
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const orm = yield core_1.MikroORM.init(mikro_orm_config_1.default);
     yield orm.getMigrator().up();
+    console.log(`Set up ORM`);
     const app = express_1.default();
     app.use(cors_1.default({
         origin: "http://localhost:3000",

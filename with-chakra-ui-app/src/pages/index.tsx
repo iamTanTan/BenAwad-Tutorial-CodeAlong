@@ -21,4 +21,6 @@ const Index = () => {
     );
 };
 
+//Add ssr if doing queries and if it is important to SEO,
+//you might want to use a custom loader instead of ssr in some cases
 export default withUrqlClient(createUrqlClient, { ssr: true })(Index);

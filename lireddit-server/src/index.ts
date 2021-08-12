@@ -11,14 +11,18 @@ import redis from "redis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import cors from "cors";
+//import { sendEmail } from "./utils/sendEmail";
+//import { User } from "./entities/User";
 
 const RedisStore = connectRedis(session);
 const redisClient = redis.createClient();
 
 const main = async () => {
+    // sendEmail("bob@bob.com", "testing email");
     //Initialize mikro-orm with config and set migrator up
     const orm = await MikroORM.init(mikroConfig);
     await orm.getMigrator().up();
+    console.log(`Set up ORM`);
 
     /* Express */
     const app = express();
