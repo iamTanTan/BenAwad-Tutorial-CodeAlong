@@ -20,9 +20,10 @@ const redisClient = redis.createClient();
 const main = async () => {
     // sendEmail("bob@bob.com", "testing email");
     //Initialize mikro-orm with config and set migrator up
+    console.log("before");
     const orm = await MikroORM.init(mikroConfig);
-    await orm.getMigrator().up();
-    console.log(`Set up ORM`);
+    console.log("after");
+    //await orm.getMigrator().up();
 
     /* Express */
     const app = express();
