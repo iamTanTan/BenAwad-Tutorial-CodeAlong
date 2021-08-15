@@ -22,7 +22,7 @@ export const validateRegister = (options: UsernamePasswordInput) => {
     }
 
     // validate email length
-    if (options.email.length <= 5 && options.email.includes("@")) {
+    if (options.email.length <= 8 || !options.email.includes("@")) {
         return [
             {
                 field: "email",
