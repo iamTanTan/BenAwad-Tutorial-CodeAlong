@@ -4,9 +4,11 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
+import { Post } from "./Post";
 
 // Attach ObjectType and Field() decorators to interact with graphql and typeorm
 // Note: Make sure to add to entities within typeorm createConnection
@@ -16,14 +18,6 @@ export class User extends BaseEntity {
     @Field(() => Int)
     @PrimaryGeneratedColumn()
     id!: number;
-
-    @Field(() => String)
-    @CreateDateColumn()
-    createdAt: Date;
-
-    @Field(() => String)
-    @UpdateDateColumn()
-    updatedAt = new Date();
 
     @Field(() => String)
     @Column({ unique: true })
@@ -36,4 +30,15 @@ export class User extends BaseEntity {
     @Field(() => String)
     @Column({ unique: true })
     email!: string;
+
+    @OneToMany(() => Post, (post) => post.creator)
+    posts: Post[];
+
+    @Field(() => String)
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @Field(() => String)
+    @UpdateDateColumn()
+    updatedAt = new Date();
 }

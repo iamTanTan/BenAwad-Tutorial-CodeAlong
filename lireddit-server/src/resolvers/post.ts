@@ -1,7 +1,27 @@
-import { Arg, Int, Mutation, Query, Resolver } from "type-graphql";
+import { isAuth } from "src/middleware/isAuth";
+import { MyContext } from "src/types";
+import {
+    Arg,
+    Ctx,
+    Field,
+    InputType,
+    Int,
+    Mutation,
+    Query,
+    Resolver,
+    UseMiddleware,
+} from "type-graphql";
 import { Post } from "../entities/Post";
 
-// This file demonstrates basic CRUD operations with mikro-orm and GraphQl
+// This file demonstrates basic CRUD operations with typeorm and GraphQl
+
+@InputType()
+class PostInput {
+    @Field()
+    title: string;
+    @Field()
+    text: string;
+}
 
 @Resolver()
 export class PostResolver {
@@ -19,8 +39,12 @@ export class PostResolver {
 
     // Queries are for getting data, mutations are for updating, creating and deleting data
     @Mutation(() => Post)
-    async createPost(@Arg("title") title: string): Promise<Post | null> {
-        return Post.create({ title }).save();
+    @UseMiddleware(isAuth)
+    async createPost(
+        @Arg("input") input: PostInput,
+        @Ctx() { req }: MyContext
+    ): Promise<Post | null> {
+        return Post.create({ ...input, creatorId: req.session.userId }).save();
     }
 
     @Mutation(() => Post)

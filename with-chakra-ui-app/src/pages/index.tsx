@@ -2,21 +2,21 @@ import { NavBar } from "../components/NavBar";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { usePostsQuery } from "../generated/graphql";
+import { Box } from "@chakra-ui/react";
 
 const Index = () => {
     const [{ data }] = usePostsQuery();
     return (
         <div>
             <NavBar />
-            Hello World
-            <br></br>
-            <br></br>
-            {!data ? (
-                <div>loading...</div>
-            ) : (
-                data.posts.map((p) => <li key={p.id}>{p.title}</li>)
-            )}
-            after
+            <Box>
+                Hello World
+                {!data ? (
+                    <div>loading...</div>
+                ) : (
+                    data.posts.map((p) => <li key={p.id}>{p.title}</li>)
+                )}
+            </Box>
         </div>
     );
 };

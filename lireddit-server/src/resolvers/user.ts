@@ -160,9 +160,9 @@ export class UserResolver {
                 })
                 .returning("*")
                 .execute();
-            user = result.raw;
+            user = result.raw[0];
         } catch (err) {
-            console.log(err);
+            // console.log(err);
             if (err.detail.includes("already exists")) {
                 return {
                     errors: [
