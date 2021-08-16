@@ -75,6 +75,61 @@ export class UserResolver {
     }
 
     @Mutation(() => UserResponse)
+    async changePassword(
+        @Arg("token") token: string,
+        @Arg("newPassword") newPassword: string,
+        @Ctx() { em, redis, req }: MyContext
+    ): Promise<UserResponse> {
+        // validate password length
+        if (newPassword.length <= 8) {
+            return {
+                errors: [
+                    {
+                        field: "newPassword",
+                        message: "the new password entered is too short",
+                    },
+                ],
+            };
+        }
+
+        const key = FORGET_PASSWORD_PREFIX + token;
+        const userId = await redis.get(key);
+        if (!userId) {
+            return {
+                errors: [
+                    {
+                        field: "token",
+                        message: "token expired",
+                    },
+                ],
+            };
+        }
+
+        const user = await em.findOne(User, { id: parseInt(userId) });
+        if (!user) {
+            return {
+                errors: [
+                    {
+                        field: "token",
+                        message: "user no longer exists",
+                    },
+                ],
+            };
+        }
+
+        user.password = await argon2.hash(newPassword);
+        await em.persistAndFlush(user);
+
+        //delete reset token key
+        await redis.del(key);
+
+        //login user after change password
+        req.session.userId = user.id;
+
+        return { user };
+    }
+
+    @Mutation(() => UserResponse)
     async register(
         @Arg("options") options: UsernamePasswordInput,
         @Ctx() { em, req }: MyContext
