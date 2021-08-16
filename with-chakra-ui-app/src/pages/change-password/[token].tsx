@@ -1,6 +1,6 @@
 import { NextPage } from "next";
 import { Formik, Form } from "formik";
-import { Box, Button, Link } from "@chakra-ui/react";
+import { Box, Button, Link, Flex } from "@chakra-ui/react";
 import { Wrapper } from "../../components/Wrapper";
 import { InputField } from "../../components/InputField";
 import { useChangePasswordMutation } from "../../generated/graphql";
@@ -50,12 +50,14 @@ const ChangePassword: NextPage<{}> = () => {
                             />
                         </Box>
                         {tokenError ? (
-                            <Box>
-                                <Box color='red'>{tokenError}</Box>
+                            <Flex>
+                                <Box mr={2} color='red'>
+                                    {tokenError}
+                                </Box>
                                 <NextLink href='/forgot-password'>
-                                    <Link>Forgot Password?</Link>
+                                    <Link>forgot password?</Link>
                                 </NextLink>
-                            </Box>
+                            </Flex>
                         ) : null}
                         <Button
                             mt={4}
