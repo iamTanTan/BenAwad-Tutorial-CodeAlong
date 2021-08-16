@@ -1,7 +1,5 @@
 import "reflect-metadata";
-import { MikroORM } from "@mikro-orm/core";
 import { COOKIE_NAME, __prod__ } from "./constants";
-import mikroConfig from "./mikro-orm.config";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
@@ -11,19 +9,25 @@ import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import cors from "cors";
-//import { sendEmail } from "./utils/sendEmail";
-//import { User } from "./entities/User";
+import { createConnection } from "typeorm";
+import { User } from "./entities/User";
+import { Post } from "./entities/Post";
 
 const RedisStore = connectRedis(session);
 const redis = new Redis();
 
 const main = async () => {
-    // sendEmail("bob@bob.com", "testing email");
     //Initialize mikro-orm with config and set migrator up
-    console.log("before");
-    const orm = await MikroORM.init(mikroConfig);
-    console.log("after");
-    //await orm.getMigrator().up();
+    // const conn =
+    await createConnection({
+        type: "postgres",
+        database: "lireddit2",
+        username: "postgres",
+        password: "Tanman11!!",
+        logging: true,
+        synchronize: true,
+        entities: [Post, User],
+    });
 
     /* Express */
     const app = express();
@@ -62,7 +66,7 @@ const main = async () => {
             resolvers: [UserResolver, PostResolver],
             validate: false,
         }),
-        context: ({ req, res }) => ({ em: orm.em, req, res, redis }),
+        context: ({ req, res }) => ({ req, res, redis }),
     });
     // apply apollo middleware to express to create graphql endpoint on server
     apolloServer.applyMiddleware({

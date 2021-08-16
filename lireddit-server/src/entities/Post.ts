@@ -1,25 +1,31 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
 import { Field, Int, ObjectType } from "type-graphql";
+import {
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from "typeorm";
 
-// Attach ObjectTyoe and Field() decorators to interact with mikro-orm
-
+// Attach ObjectTyoe and Field() decorators to interact with graphql and typeorm
 @ObjectType()
 @Entity()
-export class Post {
+export class Post extends BaseEntity {
     //note you can remove Field decorator and then this filed will not be exposed in graphql
     @Field(() => Int)
-    @PrimaryKey()
+    @PrimaryGeneratedColumn()
     id!: number;
 
     @Field(() => String)
-    @Property({ type: "text" })
+    @Column()
     title!: string;
 
     @Field(() => String)
-    @Property({ type: "date" })
-    createdAt = new Date();
+    @CreateDateColumn()
+    createdAt: Date;
 
     @Field(() => String)
-    @Property({ type: "date", onUpdate: () => new Date() })
+    @UpdateDateColumn()
     updatedAt = new Date();
 }
