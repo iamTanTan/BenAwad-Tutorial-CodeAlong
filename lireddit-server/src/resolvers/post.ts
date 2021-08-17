@@ -1,4 +1,4 @@
-import { isAuth } from "src/middleware/isAuth";
+import { isAuth } from "../middleware/isAuth";
 import { MyContext } from "src/types";
 import {
     Arg,
