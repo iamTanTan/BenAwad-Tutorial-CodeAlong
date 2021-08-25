@@ -4,14 +4,17 @@ import {
     Arg,
     Ctx,
     Field,
+    FieldResolver,
     InputType,
     Int,
     Mutation,
     Query,
     Resolver,
+    Root,
     UseMiddleware,
 } from "type-graphql";
 import { Post } from "../entities/Post";
+import { getConnection } from "typeorm";
 
 // This file demonstrates basic CRUD operations with typeorm and GraphQl
 
@@ -23,13 +26,33 @@ class PostInput {
     text: string;
 }
 
-@Resolver()
+@Resolver(Post)
 export class PostResolver {
+    @FieldResolver(() => String)
+    textSnippet(@Root() root: Post) {
+        return root.text.slice(0, 60);
+    }
+
     //Query from post using em from mikro-orm with a defined type (types.ts)
     //and returning the result of the query.
     @Query(() => [Post])
-    async posts(): Promise<Post[]> {
-        return Post.find();
+    async posts(
+        @Arg("limit", () => Int) limit: number,
+        @Arg("cursor", () => String, { nullable: true }) cursor: string
+    ): Promise<Post[]> {
+        const realLimit = Math.min(50, limit);
+        const qb = getConnection()
+            .getRepository(Post)
+            .createQueryBuilder("post")
+            .take(realLimit)
+            .orderBy('"createdAt"', "DESC");
+
+        if (cursor)
+            qb.where('"createdAt" < :cursor', {
+                cursor: new Date(parseInt(cursor)),
+            });
+
+        return qb.getMany();
     }
 
     @Query(() => Post, { nullable: true })
