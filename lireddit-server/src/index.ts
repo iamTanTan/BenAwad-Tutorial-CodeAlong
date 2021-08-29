@@ -18,8 +18,8 @@ const RedisStore = connectRedis(session);
 const redis = new Redis();
 
 const main = async () => {
-    //Initialize mikro-orm with config and set migrator up
-    await createConnection({
+    //Initialize type-orm with config and set migrator up
+    const conn = await createConnection({
         type: "postgres",
         database: "lireddit2",
         username: "postgres",
@@ -29,6 +29,12 @@ const main = async () => {
         migrations: [path.join(__dirname, "./migrations/*")],
         entities: [Post, User],
     });
+
+    console.log(conn.options);
+
+    //conn.runMigrations();
+
+    //await Post.delete({});
 
     /* Express */
     const app = express();
