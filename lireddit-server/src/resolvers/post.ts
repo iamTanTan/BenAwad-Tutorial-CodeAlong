@@ -42,6 +42,35 @@ export class PostResolver {
         return root.text.slice(0, 60);
     }
 
+    @Mutation(() => Boolean)
+    async vote(
+        @Arg("postId", () => Int) postId: number,
+        @Arg("value", () => Int) value: number,
+        @Ctx() { req }: MyContext
+    ) {
+        const { userId } = req.session;
+
+        const isUpdoot = value !== -1;
+        const realValue = isUpdoot ? 1 : -1;
+
+        getConnection().query(
+            `
+            START TRANSACTION;
+
+            insert into updoot ("userId", "postId", value)
+            values (${userId}, ${postId}, ${realValue});
+
+            update post
+            set points = points + ${realValue}
+            where id = ${postId};
+
+            COMMIT;
+        `
+        );
+
+        return true;
+    }
+
     //Query from post using em from mikro-orm with a defined type (types.ts)
     //and returning the result of the query.
     @Query(() => PaginatedPosts)

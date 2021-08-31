@@ -9,6 +9,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { Post } from "./Post";
+import { Updoot } from "./Updoot";
 
 // Attach ObjectType and Field() decorators to interact with graphql and typeorm
 // Note: Make sure to add to entities within typeorm createConnection
@@ -33,6 +34,9 @@ export class User extends BaseEntity {
 
     @OneToMany(() => Post, (post) => post.creator)
     posts: Post[];
+
+    @OneToMany(() => Updoot, (updoot) => updoot.user)
+    updoots: Updoot[];
 
     @Field(() => String)
     @CreateDateColumn()
