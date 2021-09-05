@@ -53,6 +53,8 @@ export class PostResolver {
         const isUpdoot = value !== -1;
         const realValue = isUpdoot ? 1 : -1;
 
+        //const vote = Updoot.find({ postId: postId, userId: userId });
+
         getConnection().query(
             `
             START TRANSACTION;
