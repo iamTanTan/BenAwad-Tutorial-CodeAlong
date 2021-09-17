@@ -18,7 +18,6 @@ import { Updoot } from "./entities/Updoot";
 const RedisStore = connectRedis(session);
 const redis = new Redis();
 
-
 const main = async () => {
     //Initialize type-orm with configu and set migrator up
     const conn = await createConnection({

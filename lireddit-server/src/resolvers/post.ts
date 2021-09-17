@@ -16,6 +16,7 @@ import {
 } from "type-graphql";
 import { Post } from "../entities/Post";
 import { getConnection } from "typeorm";
+import { Updoot } from "../entities/Updoot";
 
 // This file demonstrates basic CRUD operations with typeorm and GraphQl
 
@@ -49,27 +50,54 @@ export class PostResolver {
         @Ctx() { req }: MyContext
     ) {
         const { userId } = req.session;
-
+        const updoot = await Updoot.findOne({ where: { postId, userId } });
         const isUpdoot = value !== -1;
         const realValue = isUpdoot ? 1 : -1;
 
-        //const vote = Updoot.find({ postId: postId, userId: userId });
+        // user already voted
+        //and they are changing their vote
+        if (updoot && updoot.value !== realValue) {
+            await getConnection().transaction(async (tm) => {
+                await tm.query(
+                    `
+                    update updoot
+                    set value = $1
+                    where "postId" = $2 and "userId" = $3`,
+                    [realValue, postId, userId]
+                );
 
-        getConnection().query(
-            `
-            START TRANSACTION;
+                //note must multiply by 2 to undo upvote for downdoot or vice versa
+                await tm.query(
+                    `
+                    update post
+                    set points = points + $1
+                    where id = $2
+                    `,
+                    [2 * realValue, postId]
+                );
+            });
 
-            insert into updoot ("userId", "postId", value)
-            values (${userId}, ${postId}, ${realValue});
+            //never voted before
+        } else if (!updoot) {
+            await getConnection().transaction(async (tm) => {
+                await tm.query(
+                    `
+                    insert into updoot ("userId", "postId", value)
+                    values ($1, $2, $3)
+                    `,
+                    [userId, postId, realValue]
+                );
 
-            update post
-            set points = points + ${realValue}
-            where id = ${postId};
-
-            COMMIT;
-        `
-        );
-
+                await tm.query(
+                    `
+                    update post
+                    set points = points + $1
+                    where id = $2`,
+                    [realValue, postId]
+                );
+            });
+        } else {
+        }
         return true;
     }
 
@@ -78,7 +106,8 @@ export class PostResolver {
     @Query(() => PaginatedPosts)
     async posts(
         @Arg("limit", () => Int) limit: number,
-        @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+        @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
+        @Ctx() { req }: MyContext
     ): Promise<PaginatedPosts> {
         //check one outside limit to determine if more posts are going to be available to show
         const realLimit = Math.min(50, limit);
@@ -86,8 +115,14 @@ export class PostResolver {
 
         const replacements: any[] = [realLimitPlusOne];
 
+        if (req.session.userId) {
+            replacements.push(req.session.userId);
+        }
+
+        let cursorIdx = 3;
         if (cursor) {
             replacements.push(new Date(parseInt(cursor)));
+            cursorIdx = replacements.length;
         }
 
         const posts = await getConnection().query(
@@ -97,10 +132,15 @@ export class PostResolver {
                 'id', u.id,
                 'username', u.username,
                 'email', u.email
-            ) creator
+            ) creator,
+            ${
+                req.session.userId
+                    ? '(select value from updoot where "userId" = $2 and "postId" = p.id) "voteStatus"'
+                    : 'null as "voteStatus"'
+            }
             from post p
             inner join public.user u on u.id = p."creatorId"
-            ${cursor ? `where p."createdAt" < $2` : ""}
+            ${cursor ? `where p."createdAt" < $${cursorIdx}` : ""}
             order by p."createdAt" DESC
             limit $1
             `,
@@ -129,7 +169,7 @@ export class PostResolver {
 
     @Query(() => Post, { nullable: true })
     async post(@Arg("id", () => Int) id: number): Promise<Post | undefined> {
-        return Post.findOne(id);
+        return Post.findOne(id, { relations: ["creator"] });
     }
 
     // Queries are for getting data, mutations are for updating, creating and deleting data
@@ -162,8 +202,12 @@ export class PostResolver {
 
     // Notice we cannot return the post we deleted (it does not exist anymore!) thus we return a boolean
     @Mutation(() => Boolean)
-    async deletePost(@Arg("id", () => Int) id: number): Promise<boolean> {
-        await Post.delete(id);
+    @UseMiddleware(isAuth)
+    async deletePost(
+        @Arg("id", () => Int) id: number,
+        @Ctx() { req }: MyContext
+    ): Promise<boolean> {
+        await Post.delete({ id, creatorId: req.session.userId });
         return true;
     }
 }

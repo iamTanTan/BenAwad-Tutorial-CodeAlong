@@ -45,7 +45,14 @@ const CreatePost: React.FC<{}> = ({}) => {
                             mt={4}
                             type='submit'
                             isLoading={isSubmitting}
-                            colorScheme='teal'>
+                            p={4}
+                            color='white'
+                            fontWeight='bold'
+                            borderRadius='md'
+                            bgGradient='linear(to-l, blue.600, pink.500)'
+                            _hover={{
+                                bgGradient: "linear(to-l, blue.500, pink.400)",
+                            }}>
                             create post
                         </Button>
                     </Form>

@@ -33,6 +33,10 @@ export class Post extends BaseEntity {
     @Column({ type: "int", default: 0 })
     points!: number;
 
+    //only graphql
+    @Field(() => Int, { nullable: true })
+    voteStatus: number | null; // 1 or -1 or null
+
     @Field()
     @Column()
     creatorId: number;
