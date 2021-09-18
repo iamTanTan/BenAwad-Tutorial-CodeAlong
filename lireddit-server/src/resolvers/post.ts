@@ -183,21 +183,27 @@ export class PostResolver {
     }
 
     @Mutation(() => Post)
+    @UseMiddleware(isAuth)
     async updatePost(
         @Arg("id", () => Int) id: number,
         // In this case there is only one field to change, but if we wanted to change a specific one
         // or optionlly update it we could add nullable option
-        @Arg("title", () => String, { nullable: true }) title: string
+        @Arg("title") title: string,
+        @Arg("text") text: string,
+        @Ctx() { req }: MyContext
     ): Promise<Post | null> {
-        const post = await Post.findOne(id);
-        if (!post) {
-            return null;
-        }
-        if (typeof title !== "undefined") {
-            post.title = title;
-            await Post.update({ id }, { title });
-        }
-        return post;
+        const result = await getConnection()
+            .createQueryBuilder()
+            .update(Post)
+            .set({ title, text })
+            .where('id = :id and "creatorId" = :creatorId', {
+                id,
+                creatorId: req.session.id,
+            })
+            .returning("*")
+            .execute();
+
+        return result.raw[0];
     }
 
     // Notice we cannot return the post we deleted (it does not exist anymore!) thus we return a boolean

@@ -3,15 +3,7 @@ import { useRouter } from "next/router";
 import { Layout } from "../../components/Layout";
 import { usePostQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
-import {
-    Box,
-    Link,
-    Stack,
-    Heading,
-    Text,
-    Flex,
-    Button,
-} from "@chakra-ui/react";
+import { Heading } from "@chakra-ui/react";
 
 const Post = ({}) => {
     const router = useRouter();

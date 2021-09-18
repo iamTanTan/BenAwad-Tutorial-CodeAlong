@@ -33,7 +33,11 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
         body = (
             <Flex align='center'>
                 <NextLink href='./create-post'>
-                    <Button rightIcon={<SmallAddIcon />} size='sm' mr={4}>
+                    <Button
+                        rightIcon={<SmallAddIcon />}
+                        size='sm'
+                        mr={4}
+                        shadow='md'>
                         create post
                     </Button>
                 </NextLink>
@@ -66,7 +70,12 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
             <Flex flex={1} m='auto' align='center' maxW={800}>
                 <NextLink href='/'>
                     <Link>
-                        <Heading size='lg' p={0} mb={0} color='white'>
+                        <Heading
+                            size='lg'
+                            p={0}
+                            mb={0}
+                            color='white'
+                            textShadow='1px 2px #000000'>
                             Breaddit
                         </Heading>
                     </Link>
