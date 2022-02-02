@@ -44,6 +44,7 @@ export class PostResolver {
     }
 
     @Mutation(() => Boolean)
+    @UseMiddleware(isAuth)
     async vote(
         @Arg("postId", () => Int) postId: number,
         @Arg("value", () => Int) value: number,
@@ -53,6 +54,8 @@ export class PostResolver {
         const updoot = await Updoot.findOne({ where: { postId, userId } });
         const isUpdoot = value !== -1;
         const realValue = isUpdoot ? 1 : -1;
+
+        //could also use Post.update instead
 
         // user already voted
         //and they are changing their vote
@@ -213,7 +216,15 @@ export class PostResolver {
         @Arg("id", () => Int) id: number,
         @Ctx() { req }: MyContext
     ): Promise<boolean> {
-        await Post.delete({ id, creatorId: req.session.userId });
+        const post = await Post.findOne(id);
+        if (!post) {
+            return false;
+        }
+        if (post.creatorId !== req.session.userId) {
+            throw Error("not authorized");
+        }
+        //await Updoot.delete({ postId: id });
+        await Post.delete(id);
         return true;
     }
 }
