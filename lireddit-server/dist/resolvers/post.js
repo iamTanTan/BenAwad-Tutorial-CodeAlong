@@ -146,7 +146,7 @@ let PostResolver = class PostResolver {
                 .set({ title, text })
                 .where('id = :id and "creatorId" = :creatorId', {
                 id,
-                creatorId: req.session.id,
+                creatorId: req.session.userId,
             })
                 .returning("*")
                 .execute();
@@ -155,7 +155,14 @@ let PostResolver = class PostResolver {
     }
     deletePost(id, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield Post_1.Post.delete({ id, creatorId: req.session.userId });
+            const post = yield Post_1.Post.findOne(id);
+            if (!post) {
+                return false;
+            }
+            if (post.creatorId !== req.session.userId) {
+                throw Error("not authorized");
+            }
+            yield Post_1.Post.delete(id);
             return true;
         });
     }

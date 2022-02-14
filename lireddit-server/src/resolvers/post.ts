@@ -201,7 +201,7 @@ export class PostResolver {
             .set({ title, text })
             .where('id = :id and "creatorId" = :creatorId', {
                 id,
-                creatorId: req.session.id,
+                creatorId: req.session.userId,
             })
             .returning("*")
             .execute();

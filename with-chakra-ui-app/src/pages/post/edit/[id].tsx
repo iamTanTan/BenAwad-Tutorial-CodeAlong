@@ -11,7 +11,7 @@ import {
 import { createUrqlClient } from "../../../utils/createUrqlClient";
 
 const EditPost = ({}) => {
-    const [editPost] = useUpdatePostMutation();
+    const [, editPost] = useUpdatePostMutation();
     const router = useRouter();
     const intId =
         typeof router.query.id === "string" ? parseInt(router.query.id) : -1;
@@ -33,7 +33,8 @@ const EditPost = ({}) => {
             <Formik
                 initialValues={{ title: data.post.title, text: data.post.text }}
                 onSubmit={async (values) => {
-                    // await editPost({ variables: { id: intId, ...values } });
+                    console.log(values);
+                    await editPost({ id: intId, ...values });
                     router.back();
                 }}>
                 {({ isSubmitting }) => (
@@ -66,11 +67,24 @@ const EditPost = ({}) => {
                             _hover={{
                                 bgGradient: "linear(to-l, blue.500, pink.400)",
                             }}>
-                            edit post
+                            save
                         </Button>
                     </Form>
                 )}
             </Formik>
+            <Button
+                mt={4}
+                p={4}
+                color='white'
+                fontWeight='bold'
+                borderRadius='md'
+                bgGradient='linear(to-l, blue.600, pink.500)'
+                _hover={{
+                    bgGradient: "linear(to-r, blue.500, pink.400)",
+                }}
+                onClick={() => router.back()}>
+                cancel
+            </Button>
         </Layout>
     );
 };
