@@ -1,4 +1,3 @@
-import { isAuth } from "../middleware/isAuth";
 import { MyContext } from "src/types";
 import {
     Arg,
@@ -14,9 +13,10 @@ import {
     Root,
     UseMiddleware,
 } from "type-graphql";
-import { Post } from "../entities/Post";
 import { getConnection } from "typeorm";
+import { Post } from "../entities/Post";
 import { Updoot } from "../entities/Updoot";
+import { isAuth } from "../middleware/isAuth";
 
 // This file demonstrates basic CRUD operations with typeorm and GraphQl
 
