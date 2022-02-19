@@ -76,7 +76,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
                             mb={0}
                             color='white'
                             textShadow='1px 2px #000000'>
-                            This
+                            A Website
                         </Heading>
                     </Link>
                 </NextLink>

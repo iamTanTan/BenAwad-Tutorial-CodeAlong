@@ -69,6 +69,7 @@ const Index = () => {
                                                         ml='auto'
                                                         as={Link}
                                                         mr={3}
+                                                        colorScheme='blue'
                                                         icon={<EditIcon />}
                                                         aria-label='Edit Post'
                                                     />
@@ -77,6 +78,7 @@ const Index = () => {
                                                     ml='auto'
                                                     icon={<DeleteIcon />}
                                                     aria-label='Delete Post'
+                                                    colorScheme='red'
                                                     onClick={() => {
                                                         deletePost({
                                                             id: p.id,
