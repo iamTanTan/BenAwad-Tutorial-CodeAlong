@@ -39,6 +39,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
                         rightIcon={<SmallAddIcon />}
                         size='sm'
                         mr={4}
+                        bgColor='white'
                         shadow='md'>
                         create post
                     </Button>
@@ -79,7 +80,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
                             mb={0}
                             color='white'
                             textShadow='1px 2px #000000'>
-                            A Website
+                            Breaddit
                         </Heading>
                     </Link>
                 </NextLink>
